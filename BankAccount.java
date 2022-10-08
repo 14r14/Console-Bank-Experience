@@ -24,7 +24,6 @@ public class BankAccount {
     private String accountName;
     private double balance;
     private String password;
-    private static final double INTEREST_RATE = 0.03;
     private static final double OVERDRAFT_FEE = 35.00;
 
     public BankAccount(String accountName, double balance, String password, boolean login, String accountId) {
@@ -101,7 +100,6 @@ public class BankAccount {
         while (fileScanner.hasNextLine()) {
             accountInfo = fileScanner.nextLine().split(",");
             liveLine++;
-            System.out.println("Checking line " + liveLine + " of " + numLines);
             if (accountId.equals(accountInfo[0])) {
                 System.out.println("Account found. Checking password...");
                 if (accountInfo[3].equals(pwd)) {
@@ -141,7 +139,6 @@ public class BankAccount {
         while (fileScanner.hasNextLine()) {
             accountInfo = fileScanner.nextLine().split(",");
             liveLine++;
-            System.out.println("Checking line " + liveLine + " of " + numLines);
             if (accountId.equals(accountInfo[0])) {
                 break;
             } else {
@@ -178,7 +175,6 @@ public class BankAccount {
     }
 
     private static void saveAllData(BankAccount account) throws Exception {
-        // Save the current state of all accounts to the accounts.txt file
         File accountFile = new File("accounts.txt");
         Path path = Paths.get("accounts.txt");
 
@@ -193,8 +189,6 @@ public class BankAccount {
         String fileContents = buffer.toString();
         String[] accountInfo = getFileData(account.accountId);
 
-        System.out.println(fileContents);
-
         fileContents = fileContents.replaceAll(
                 accountInfo[0] + "," + accountInfo[1] + "," + accountInfo[2] + "," + accountInfo[3],
                 account.accountId + "," + account.accountName + "," + account.balance + "," + account.password);
@@ -203,13 +197,163 @@ public class BankAccount {
         writer.flush();
     }
 
-    public static int getChoice(BankAccount account) {
+    private static double getBalance(BankAccount account) {
+        return account.balance;
+    }
+
+    private static String updateAccountName(BankAccount account) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter new account name: ");
+        String newName = scanner.nextLine();
+        System.out.print("Are you sure you want to change your account name to " + newName
+                + "? This action cannot be reversed (y/n): ");
+        boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
+        if (confirm) {
+            account.accountName = newName;
+            System.out.println("Account name changed successfully.");
+        } else {
+            System.out.println("Account name change cancelled.");
+        }
+        return "Done";
+    }
+
+    private static String updatePassword(BankAccount account) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter current password: ");
+        String currentPwd = scanner.nextLine();
+        if (currentPwd.equals(account.password)) {
+            System.out.print("Enter new password: ");
+            String newPwd = scanner.nextLine();
+            System.out.print("Confirm new password: ");
+            String confirmPwd = scanner.nextLine();
+            if (newPwd.equals(confirmPwd)) {
+                System.out.print("Are you sure you want to change your password" +
+                        "? This action cannot be reversed (y/n): ");
+                boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
+                if (confirm) {
+                    account.password = newPwd;
+                    System.out.println("Password changed successfully.");
+                } else {
+                    System.out.println("Password change cancelled.");
+                }
+            } else {
+                System.out.println("Passwords do not match. Password change cancelled.");
+            }
+        } else {
+            System.out.println("Incorrect password. Password change cancelled.");
+        }
+        return "Done";
+    }
+
+    private static void deleteAccountFromFile(BankAccount account) throws Exception {
+        File accountFile = new File("accounts.txt");
+        Path path = Paths.get("accounts.txt");
+
+        Scanner fileScanner = new Scanner(accountFile);
+
+        StringBuffer buffer = new StringBuffer();
+
+        while (fileScanner.hasNextLine()) {
+            buffer.append(fileScanner.nextLine() + System.lineSeparator());
+        }
+
+        String fileContents = buffer.toString();
+        String[] accountInfo = getFileData(account.accountId);
+
+        fileContents = fileContents.replaceAll(
+                accountInfo[0] + "," + accountInfo[1] + "," + accountInfo[2] + "," + accountInfo[3]
+                        + System.lineSeparator(),
+                "");
+        FileWriter writer = new FileWriter("accounts.txt");
+        writer.append(fileContents);
+        writer.flush();
+    }
+
+    private static String deleteAccount(BankAccount account) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter current password: ");
+        String currentPwd = scanner.nextLine();
+        if (currentPwd.equals(account.password)) {
+            System.out.print("Are you sure you want to delete your account? This action cannot be reversed (y/n): ");
+            boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
+            if (confirm) {
+                try {
+                    deleteAccountFromFile(account);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Account deleted successfully.");
+                return "Done4";
+            } else {
+                System.out.println("Account deletion cancelled.");
+            }
+        } else {
+            System.out.println("Incorrect password. Account deletion cancelled.");
+        }
+        return "Done";
+    }
+
+    private static int accountInfoSettings(BankAccount account) {
+        HashMap<Integer, String> settings = new HashMap<Integer, String>();
+
+        settings.put(1, "View account info");
+        settings.put(2, "Change account name");
+        settings.put(3, "Change password");
+        settings.put(4, "Delete account");
+        settings.put(5, "Return to main menu");
+
+        Scanner scanner = new Scanner(System.in);
+
+        int choice = 0;
+        while (true) {
+            System.out.println("Account settings:");
+            for (int i = 1; i <= settings.size(); i++) {
+                System.out.println(i + ". " + settings.get(i));
+            }
+            System.out.print("Enter choice: ");
+            choice = scanner.nextInt();
+            scanner.nextLine();
+            if (choice > 0 && choice <= settings.size()) {
+                if (choice == 1) {
+                    System.out.println("Account ID: " + account.accountId);
+                    System.out.println("Account name: " + account.accountName);
+                    System.out.println("Balance: " + account.balance);
+                    System.out.println();
+                    continue;
+                } else if (choice == 2) {
+                    updateAccountName(account);
+                    continue;
+                } else if (choice == 3) {
+                    updatePassword(account);
+                    continue;
+                } else if (choice == 4) {
+                    try {
+                        String result = deleteAccount(account);
+                        if (result.equals("Done4")) {
+                            return 404;
+                        } else {
+                            continue;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    break;
+                }
+            } else {
+                System.out.println("Invalid choice.");
+            }
+        }
+        return choice;
+    }
+
+    private static int getChoice(BankAccount account) {
         HashMap<Integer, String> choices = new HashMap<Integer, String>();
 
         choices.put(1, "Deposit");
         choices.put(2, "Withdraw");
         choices.put(3, "Check Balance");
-        choices.put(4, "Calculate Interest");
+        choices.put(4, "View Account Info & Settings");
         choices.put(5, "Exit");
 
         Scanner scanner = new Scanner(System.in);
@@ -231,6 +375,17 @@ public class BankAccount {
                 } else if (choice == 2) {
                     withdraw(account);
                     continue;
+                } else if (choice == 3) {
+                    double curBalance = getBalance(account);
+                    System.out.println("Your account has: $" + curBalance);
+                    continue;
+                } else if (choice == 4) {
+                    int result = accountInfoSettings(account);
+                    if (result == 404) {
+                        return 404;
+                    } else {
+                        continue;
+                    }
                 } else {
                     break;
                 }
