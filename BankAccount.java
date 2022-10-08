@@ -40,9 +40,9 @@ public class BankAccount {
                 File file = new File("accounts.txt");
                 PrintWriter writer = new PrintWriter(new FileWriter("accounts.txt", true));
                 if (file.createNewFile()) {
-                    writer.append(accountId + "," + accountName + "," + balance + "," + password + "\n");
+                    writer.append(this.accountId + "," + accountName + "," + balance + "," + password + "\n");
                 } else {
-                    writer.append(accountId + "," + accountName + "," + balance + "," + password + "\n");
+                    writer.append(this.accountId + "," + accountName + "," + balance + "," + password + "\n");
                 }
                 writer.close();
                 System.out.println("Account created successfully.");
@@ -55,60 +55,55 @@ public class BankAccount {
 
     public static BankAccount createAccount() throws NoSuchAlgorithmException, InvalidKeySpecException {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter account name: ");
+        System.out.print("Enter account name: ");
         String accountName = scanner.nextLine();
 
-        System.out.println("Enter initial balance: ");
+        System.out.print("Enter initial balance: ");
         double balance = scanner.nextDouble();
+        scanner.nextLine();
 
-        char[] pwd = System.console().readPassword("Enter password: ");
+        System.out.print("Enter password: ");
+        String pwd = scanner.nextLine();
 
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-
-        KeySpec spec = new PBEKeySpec(pwd, salt, 65536, 128);
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hash = factory.generateSecret(spec).getEncoded();
-        return new BankAccount(accountName, balance, hash.toString(), false, null);
+        return new BankAccount(accountName, balance, pwd, false, null);
     }
 
-    private static boolean checkPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        char[] pwd = password.toCharArray();
+    // private static boolean checkPassword(String password) throws
+    // NoSuchAlgorithmException, InvalidKeySpecException {
+    // String hashedPassword = new String(generateSecurePassword(password));
 
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-
-        KeySpec spec = new PBEKeySpec(pwd, salt, 65536, 128);
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hash = factory.generateSecret(spec).getEncoded();
-        return password.equals(hash.toString());
-    }
+    // System.out.println("Hash to check against: " + hashedPassword);
+    // return password.equals(hashedPassword);
+    // }
 
     public static BankAccount login() throws Exception {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter account id: ");
+        System.out.print("Enter account id: ");
         String accountId = scanner.nextLine();
 
-        char[] pwd = System.console().readPassword("Enter password: ");
+        System.out.print("Enter password: ");
+        String pwd = scanner.nextLine();
 
         File accountFile = new File("accounts.txt");
 
         Scanner fileScanner = new Scanner(accountFile);
 
-        if (BankAccount.checkPassword(pwd.toString())) {
-            String[] accountInfo = new String[4];
-            while (fileScanner.hasNextLine()) {
-                accountInfo = fileScanner.nextLine().split(",");
-                if (accountInfo[0].equals(accountId)) {
+        String[] accountInfo = new String[4];
+        while (fileScanner.hasNextLine()) {
+            accountInfo = fileScanner.nextLine().split(",");
+            if (accountInfo[0].equalsIgnoreCase(accountId)) {
+                System.out.println("Account found. Checking password...");
+                if (accountInfo[3].equals(pwd)) {
+                    System.out.println("Logged in successfully as " + accountInfo[1] + ".");
                     break;
+                } else {
+                    throw new Exception("Incorrect password.");
                 }
+            } else {
+                throw new Exception("Account not found.");
             }
-            return new BankAccount(accountInfo[1], Double.parseDouble(accountInfo[3]), accountInfo[3], true,
-                    accountInfo[0]);
-        } else {
-            throw new Exception("Invalid account-id or password.");
         }
+        return new BankAccount(accountInfo[1], Double.parseDouble(accountInfo[2]), accountInfo[3], true,
+                accountInfo[0]);
     }
 }
