@@ -6,24 +6,18 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
 public class BankAccount {
     private String accountId;
     private String accountName;
     private double balance;
     private String password;
+
     private static final double OVERDRAFT_FEE = 35.00;
 
     public BankAccount(String accountName, double balance, String password, boolean login, String accountId) {
@@ -60,7 +54,7 @@ public class BankAccount {
         }
     }
 
-    public static BankAccount createAccount() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static BankAccount createAccount() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter account name: ");
         String accountName = scanner.nextLine();
@@ -347,14 +341,45 @@ public class BankAccount {
         return choice;
     }
 
+    private static void convertCurrency(BankAccount account) {
+        String[] allowedLocales = Currency.LOCALES;
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter amount to convert: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();
+        if (amount > account.balance) {
+            System.out.println("You do not have enough funds to convert that amount.");
+        } else {
+            System.out.println("Allowed currencies: ");
+            for (int i = 0; i < allowedLocales.length; i++) {
+                System.out.println(allowedLocales[i]);
+            }
+            System.out.print("Enter currency to convert to: ");
+            String currency = scanner.nextLine();
+
+            if (Arrays.asList(allowedLocales).contains(currency)) {
+                System.out.println("Converting " + amount + " to " + currency + "...");
+                System.out.println("Current exchange rate: " + Currency.getLocaleCorrespondingExchangeRate(currency));
+                account.balance -= amount;
+                System.out.println(
+                        "Conversion complete. Converted amount: " + Currency.getCurrencySymbol(currency)
+                                + Currency.convert(currency, amount));
+            } else {
+                System.out.println("Currency conversion not available for your locale.");
+            }
+        }
+    }
+
     private static int getChoice(BankAccount account) {
         HashMap<Integer, String> choices = new HashMap<Integer, String>();
 
         choices.put(1, "Deposit");
         choices.put(2, "Withdraw");
         choices.put(3, "Check Balance");
-        choices.put(4, "View Account Info & Settings");
-        choices.put(5, "Exit");
+        choices.put(4, "Convert Currency");
+        choices.put(5, "View Account Info & Settings");
+        choices.put(6, "Exit");
 
         Scanner scanner = new Scanner(System.in);
         int choice = 0;
@@ -371,20 +396,39 @@ public class BankAccount {
             if (choice >= 1 && choice <= choices.size()) {
                 if (choice == 1) {
                     deposit(account);
-                    continue;
+                    System.out.print("Done viewing? (y): ");
+                    String confirm = scanner.nextLine();
+                    if (confirm.equalsIgnoreCase("y")) {
+                        continue;
+                    }
                 } else if (choice == 2) {
                     withdraw(account);
-                    continue;
+                    String confirm = scanner.nextLine();
+                    if (confirm.equalsIgnoreCase("y")) {
+                        continue;
+                    }
                 } else if (choice == 3) {
                     double curBalance = getBalance(account);
                     System.out.println("Your account has: $" + curBalance);
-                    continue;
+                    String confirm = scanner.nextLine();
+                    if (confirm.equalsIgnoreCase("y")) {
+                        continue;
+                    }
                 } else if (choice == 4) {
+                    convertCurrency(account);
+                    String confirm = scanner.nextLine();
+                    if (confirm.equalsIgnoreCase("y")) {
+                        continue;
+                    }
+                } else if (choice == 5) {
                     int result = accountInfoSettings(account);
                     if (result == 404) {
                         return 404;
                     } else {
-                        continue;
+                        String confirm = scanner.nextLine();
+                        if (confirm.equalsIgnoreCase("y")) {
+                            continue;
+                        }
                     }
                 } else {
                     break;
