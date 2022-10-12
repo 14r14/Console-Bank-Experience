@@ -20,9 +20,9 @@ public class BankAccount {
 
     private static final double OVERDRAFT_FEE = 35.00;
 
-    public BankAccount(String accountName, double balance, String password, boolean login, String accountId) {
+    public BankAccount(String accountName, double balance, String password, boolean loginOrCheck, String accountId) {
 
-        if (login) {
+        if (loginOrCheck) {
             this.accountId = accountId;
             this.accountName = accountName;
             this.balance = balance;
@@ -35,7 +35,7 @@ public class BankAccount {
         }
 
         try {
-            if (login) {
+            if (loginOrCheck) {
                 return;
             } else {
                 File file = new File("accounts.txt");
@@ -371,6 +371,54 @@ public class BankAccount {
         }
     }
 
+    private static void transferMoney(BankAccount account) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter account ID to transfer to: ");
+        String recAccountId = scanner.nextLine();
+        String[] recAccountInfo;
+        try {
+            recAccountInfo = getFileData(recAccountId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        char[] passwordEnter = System.console().readPassword("Enter password: ");
+        String pwd = new String(passwordEnter);
+        if (pwd.equals(account.password)) {
+            System.out.print("Enter amount to transfer: ");
+            double amount = scanner.nextDouble();
+            scanner.nextLine();
+            System.out.print("Are you sure you want to transfer " + amount + " to " + recAccountInfo[1] + "? (y/n): ");
+            boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
+            if (confirm) {
+                if (amount > account.balance) {
+                    System.out.println("You do not have enough funds to transfer that amount.");
+                } else {
+                    BankAccount recAccount = new BankAccount(recAccountInfo[1], Double.parseDouble(recAccountInfo[2]),
+                            recAccountInfo[3], true, recAccountId);
+                    System.out.println("Transferring " + amount + " to account " + recAccountInfo[1] + "...");
+                    account.balance -= amount;
+                    recAccount.balance += amount;
+                    try {
+                        saveAllData(recAccount);
+                        System.out.println("Finalizing transfer...");
+                        System.out.println("Transfer complete.");
+                        return;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                }
+            } else {
+                System.out.println("Transfer cancelled.");
+                return;
+            }
+        } else {
+            System.out.println("Incorrect password. Transfer cancelled.");
+            return;
+        }
+    }
+
     private static int getChoice(BankAccount account) {
         HashMap<Integer, String> choices = new HashMap<Integer, String>();
 
@@ -378,8 +426,9 @@ public class BankAccount {
         choices.put(2, "Withdraw");
         choices.put(3, "Check Balance");
         choices.put(4, "Convert Currency");
-        choices.put(5, "View Account Info & Settings");
-        choices.put(6, "Exit");
+        choices.put(5, "Transfer Funds");
+        choices.put(6, "View Account Info & Settings");
+        choices.put(7, "Exit");
 
         Scanner scanner = new Scanner(System.in);
         int choice = 0;
@@ -403,6 +452,7 @@ public class BankAccount {
                     }
                 } else if (choice == 2) {
                     withdraw(account);
+                    System.out.print("Done viewing? (y): ");
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
@@ -410,21 +460,31 @@ public class BankAccount {
                 } else if (choice == 3) {
                     double curBalance = getBalance(account);
                     System.out.println("Your account has: $" + curBalance);
+                    System.out.print("Done viewing? (y): ");
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
                     }
                 } else if (choice == 4) {
                     convertCurrency(account);
+                    System.out.print("Done viewing? (y): ");
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
                     }
                 } else if (choice == 5) {
+                    transferMoney(account);
+                    System.out.print("Done viewing? (y): ");
+                    String confirm = scanner.nextLine();
+                    if (confirm.equalsIgnoreCase("y")) {
+                        continue;
+                    }
+                } else if (choice == 6) {
                     int result = accountInfoSettings(account);
                     if (result == 404) {
                         return 404;
                     } else {
+                        System.out.print("Done viewing? (y): ");
                         String confirm = scanner.nextLine();
                         if (confirm.equalsIgnoreCase("y")) {
                             continue;
