@@ -63,8 +63,8 @@ public class BankAccount {
         double balance = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter password: ");
-        String pwd = scanner.nextLine();
+        char[] passwordEnter = System.console().readPassword("Enter password: ");
+        String pwd = new String(passwordEnter);
 
         return new BankAccount(accountName, balance, pwd, false, null);
     }
@@ -74,8 +74,8 @@ public class BankAccount {
         System.out.print("Enter account id: ");
         String accountId = scanner.nextLine();
 
-        System.out.print("Enter password: ");
-        String pwd = scanner.nextLine();
+        char[] passwordEnter = System.console().readPassword("Enter password: ");
+        String pwd = new String(passwordEnter);
 
         File accountFile = new File("accounts.txt");
         Path path = Paths.get("accounts.txt");
@@ -213,8 +213,8 @@ public class BankAccount {
 
     private static String updatePassword(BankAccount account) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter current password: ");
-        String currentPwd = scanner.nextLine();
+        char[] passwordEnter = System.console().readPassword("Enter new password: ");
+        String currentPwd = new String(passwordEnter);
         if (currentPwd.equals(account.password)) {
             System.out.print("Enter new password: ");
             String newPwd = scanner.nextLine();
@@ -265,8 +265,8 @@ public class BankAccount {
 
     private static String deleteAccount(BankAccount account) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter current password: ");
-        String currentPwd = scanner.nextLine();
+        char[] passwordEnter = System.console().readPassword("Enter password: ");
+        String currentPwd = new String(passwordEnter);
         if (currentPwd.equals(account.password)) {
             System.out.print("Are you sure you want to delete your account? This action cannot be reversed (y/n): ");
             boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
