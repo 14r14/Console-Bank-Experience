@@ -46,10 +46,10 @@ public class BankAccount {
                     writer.append(this.accountId + "," + accountName + "," + balance + "," + password + "\n");
                 }
                 writer.close();
-                System.out.println("Account created successfully.");
+                System.out.println(ConsoleColors.colorize("Account created successfully.", ConsoleColors.GREEN));
             }
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            System.out.println(ConsoleColors.colorize("An error occurred.", ConsoleColors.RED));
             e.printStackTrace();
         }
     }
@@ -95,9 +95,10 @@ public class BankAccount {
             accountInfo = fileScanner.nextLine().split(",");
             liveLine++;
             if (accountId.equals(accountInfo[0])) {
-                System.out.println("Account found. Checking password...");
+                System.out.println(ConsoleColors.colorize("Account found. Checking password...", ConsoleColors.GREEN));
                 if (accountInfo[3].equals(pwd)) {
-                    System.out.println("Logged in successfully as " + accountInfo[1] + ".");
+                    System.out.println(ConsoleColors.colorize("Logged in successfully as " + accountInfo[1] + ".",
+                            ConsoleColors.GREEN));
                     System.out.println();
                     break;
                 } else {
@@ -150,7 +151,8 @@ public class BankAccount {
         double amount = scanner.nextDouble();
         scanner.nextLine();
         account.balance += amount;
-        System.out.println("Deposit successful. New balance: " + account.balance);
+        System.out.println(
+                ConsoleColors.colorize("Deposit successful. New balance: " + account.balance, ConsoleColors.GREEN));
     }
 
     private static void withdraw(BankAccount account) {
@@ -159,12 +161,14 @@ public class BankAccount {
         double amount = scanner.nextDouble();
         scanner.nextLine();
         if (amount > account.balance) {
-            System.out.println("Insufficient funds. Overdraft fee of $" + OVERDRAFT_FEE + " applied.");
+            System.out.println(ConsoleColors.colorize(
+                    "Insufficient funds. Overdraft fee of $" + OVERDRAFT_FEE + " applied.", ConsoleColors.RED));
             account.balance -= OVERDRAFT_FEE;
-            System.out.println("New balance: " + account.balance);
+            System.out.println(ConsoleColors.colorize("New balance: " + account.balance, ConsoleColors.RED));
         } else {
             account.balance -= amount;
-            System.out.println("Withdrawal successful. New balance: " + account.balance);
+            System.out.println(ConsoleColors.colorize("Withdrawal successful. New balance: " + account.balance,
+                    ConsoleColors.GREEN));
         }
     }
 
@@ -199,14 +203,14 @@ public class BankAccount {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter new account name: ");
         String newName = scanner.nextLine();
-        System.out.print("Are you sure you want to change your account name to " + newName
-                + "? This action cannot be reversed (y/n): ");
+        System.out.print(ConsoleColors.colorize("Are you sure you want to change your account name to " + newName
+                + "? This action cannot be reversed (y/n): ", ConsoleColors.YELLOW));
         boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
         if (confirm) {
             account.accountName = newName;
-            System.out.println("Account name changed successfully.");
+            System.out.println(ConsoleColors.colorize("Account name changed successfully.", ConsoleColors.GREEN));
         } else {
-            System.out.println("Account name change cancelled.");
+            System.out.println(ConsoleColors.colorize("Account name change cancelled.", ConsoleColors.RED));
         }
         return "Done";
     }
@@ -221,20 +225,22 @@ public class BankAccount {
             System.out.print("Confirm new password: ");
             String confirmPwd = scanner.nextLine();
             if (newPwd.equals(confirmPwd)) {
-                System.out.print("Are you sure you want to change your password" +
-                        "? This action cannot be reversed (y/n): ");
+                System.out.print(ConsoleColors.colorize("Are you sure you want to change your password" +
+                        "? This action cannot be reversed (y/n): ", ConsoleColors.YELLOW));
                 boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
                 if (confirm) {
                     account.password = newPwd;
-                    System.out.println("Password changed successfully.");
+                    System.out.println(ConsoleColors.colorize("Password changed successfully.", ConsoleColors.GREEN));
                 } else {
-                    System.out.println("Password change cancelled.");
+                    System.out.println(ConsoleColors.colorize("Password change cancelled.", ConsoleColors.RED));
                 }
             } else {
-                System.out.println("Passwords do not match. Password change cancelled.");
+                System.out.println(ConsoleColors.colorize("Passwords do not match. Password change cancelled.",
+                        ConsoleColors.RED));
             }
         } else {
-            System.out.println("Incorrect password. Password change cancelled.");
+            System.out.println(
+                    ConsoleColors.colorize("Incorrect password. Password change cancelled.", ConsoleColors.RED));
         }
         return "Done";
     }
@@ -268,7 +274,9 @@ public class BankAccount {
         char[] passwordEnter = System.console().readPassword("Enter password: ");
         String currentPwd = new String(passwordEnter);
         if (currentPwd.equals(account.password)) {
-            System.out.print("Are you sure you want to delete your account? This action cannot be reversed (y/n): ");
+            System.out.print(ConsoleColors.colorize(
+                    "Are you sure you want to delete your account? This action cannot be reversed (y/n): ",
+                    ConsoleColors.YELLOW));
             boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
             if (confirm) {
                 try {
@@ -276,13 +284,14 @@ public class BankAccount {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                System.out.println("Account deleted successfully.");
+                System.out.println(ConsoleColors.colorize("Account deleted successfully.", ConsoleColors.GREEN));
                 return "Done4";
             } else {
-                System.out.println("Account deletion cancelled.");
+                System.out.println(ConsoleColors.colorize("Account deletion cancelled.", ConsoleColors.RED));
             }
         } else {
-            System.out.println("Incorrect password. Account deletion cancelled.");
+            System.out.println(
+                    ConsoleColors.colorize("Incorrect password. Account deletion cancelled.", ConsoleColors.RED));
         }
         return "Done";
     }
@@ -335,7 +344,8 @@ public class BankAccount {
                     break;
                 }
             } else {
-                System.out.println("Invalid choice.");
+                System.out.println(ConsoleColors.colorize("Invalid choice. Please try again.", ConsoleColors.RED));
+                continue;
             }
         }
         return choice;
@@ -349,7 +359,8 @@ public class BankAccount {
         double amount = scanner.nextDouble();
         scanner.nextLine();
         if (amount > account.balance) {
-            System.out.println("You do not have enough funds to convert that amount.");
+            System.out.println(
+                    ConsoleColors.colorize("You do not have enough funds to convert that amount.", ConsoleColors.RED));
         } else {
             System.out.println("Allowed currencies: ");
             for (int i = 0; i < allowedLocales.length; i++) {
@@ -359,14 +370,18 @@ public class BankAccount {
             String currency = scanner.nextLine();
 
             if (Arrays.asList(allowedLocales).contains(currency)) {
-                System.out.println("Converting " + amount + " to " + currency + "...");
+                System.out.println(ConsoleColors.colorize("Converting " + amount + " to " + currency + "...",
+                        ConsoleColors.YELLOW));
                 System.out.println("Current exchange rate: " + Currency.getLocaleCorrespondingExchangeRate(currency));
                 account.balance -= amount;
                 System.out.println(
-                        "Conversion complete. Converted amount: " + Currency.getCurrencySymbol(currency)
-                                + Currency.convert(currency, amount));
+                        ConsoleColors.colorize(
+                                "Conversion complete. Converted amount: " + Currency.getCurrencySymbol(currency)
+                                        + Currency.convert(currency, amount),
+                                ConsoleColors.GREEN));
             } else {
-                System.out.println("Currency conversion not available for your locale.");
+                System.out.println(ConsoleColors.colorize("Currency conversion not available for your locale.",
+                        ConsoleColors.RED));
             }
         }
     }
@@ -388,21 +403,27 @@ public class BankAccount {
             System.out.print("Enter amount to transfer: ");
             double amount = scanner.nextDouble();
             scanner.nextLine();
-            System.out.print("Are you sure you want to transfer " + amount + " to " + recAccountInfo[1] + "? (y/n): ");
+            System.out.print(ConsoleColors.colorize(
+                    "Are you sure you want to transfer " + amount + " to " + recAccountInfo[1] + "? (y/n): ",
+                    ConsoleColors.YELLOW));
             boolean confirm = scanner.nextLine().equalsIgnoreCase("y");
             if (confirm) {
                 if (amount > account.balance) {
-                    System.out.println("You do not have enough funds to transfer that amount.");
+                    System.out.println(ConsoleColors.colorize("You do not have enough funds to transfer that amount.",
+                            ConsoleColors.RED));
                 } else {
                     BankAccount recAccount = new BankAccount(recAccountInfo[1], Double.parseDouble(recAccountInfo[2]),
                             recAccountInfo[3], true, recAccountId);
-                    System.out.println("Transferring " + amount + " to account " + recAccountInfo[1] + "...");
+                    System.out.println(ConsoleColors.colorize(
+                            "Transferring " + amount + " to account " + recAccountInfo[1] + "...",
+                            ConsoleColors.YELLOW));
                     account.balance -= amount;
                     recAccount.balance += amount;
                     try {
                         saveAllData(recAccount);
-                        System.out.println("Finalizing transfer...");
-                        System.out.println("Transfer complete.");
+                        saveAllData(account);
+                        System.out.println(ConsoleColors.colorize("Finalizing transfer...", ConsoleColors.YELLOW));
+                        System.out.println(ConsoleColors.colorize("Transfer complete.", ConsoleColors.GREEN));
                         return;
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -410,11 +431,11 @@ public class BankAccount {
                     }
                 }
             } else {
-                System.out.println("Transfer cancelled.");
+                System.out.println(ConsoleColors.colorize("Transfer cancelled.", ConsoleColors.RED));
                 return;
             }
         } else {
-            System.out.println("Incorrect password. Transfer cancelled.");
+            System.out.println(ConsoleColors.colorize("Incorrect password. Transfer cancelled.", ConsoleColors.RED));
             return;
         }
     }
@@ -428,13 +449,13 @@ public class BankAccount {
         choices.put(4, "Convert Currency");
         choices.put(5, "Transfer Funds");
         choices.put(6, "View Account Info & Settings");
-        choices.put(7, "Exit");
+        choices.put(7, "Logout & Exit");
 
         Scanner scanner = new Scanner(System.in);
         int choice = 0;
         while (true) {
-            System.out.println("*****CAL BANK*****");
-            System.out.println("What would you like to do?");
+            System.out.println(ConsoleColors.colorize("*****CAL BANK*****", ConsoleColors.BLUE_BOLD_BRIGHT));
+            System.out.println(ConsoleColors.colorize("What would you like to do?", ConsoleColors.PURPLE_UNDERLINED));
             System.out.println();
             for (int i = 1; i <= choices.size(); i++) {
                 System.out.println(i + ". " + choices.get(i));
@@ -445,36 +466,37 @@ public class BankAccount {
             if (choice >= 1 && choice <= choices.size()) {
                 if (choice == 1) {
                     deposit(account);
-                    System.out.print("Done viewing? (y): ");
+                    System.out.print(ConsoleColors.colorize("Done viewing? (y): ", ConsoleColors.YELLOW));
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
                     }
                 } else if (choice == 2) {
                     withdraw(account);
-                    System.out.print("Done viewing? (y): ");
+                    System.out.print(ConsoleColors.colorize("Done viewing? (y): ", ConsoleColors.YELLOW));
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
                     }
                 } else if (choice == 3) {
                     double curBalance = getBalance(account);
-                    System.out.println("Your account has: $" + curBalance);
-                    System.out.print("Done viewing? (y): ");
+                    System.out.println(
+                            "Your account has: " + ConsoleColors.colorize("$" + curBalance, ConsoleColors.GREEN));
+                    System.out.print(ConsoleColors.colorize("Done viewing? (y): ", ConsoleColors.YELLOW));
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
                     }
                 } else if (choice == 4) {
                     convertCurrency(account);
-                    System.out.print("Done viewing? (y): ");
+                    System.out.print(ConsoleColors.colorize("Done viewing? (y): ", ConsoleColors.YELLOW));
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
                     }
                 } else if (choice == 5) {
                     transferMoney(account);
-                    System.out.print("Done viewing? (y): ");
+                    System.out.print(ConsoleColors.colorize("Done viewing? (y): ", ConsoleColors.YELLOW));
                     String confirm = scanner.nextLine();
                     if (confirm.equalsIgnoreCase("y")) {
                         continue;
@@ -484,7 +506,7 @@ public class BankAccount {
                     if (result == 404) {
                         return 404;
                     } else {
-                        System.out.print("Done viewing? (y): ");
+                        System.out.print(ConsoleColors.colorize("Done viewing? (y): ", ConsoleColors.YELLOW));
                         String confirm = scanner.nextLine();
                         if (confirm.equalsIgnoreCase("y")) {
                             continue;
@@ -494,24 +516,25 @@ public class BankAccount {
                     break;
                 }
             } else {
-                System.out.println("Invalid choice. Please try again.");
+                System.out.println(ConsoleColors.colorize("Invalid choice. Please try again.", ConsoleColors.RED));
             }
         }
-        System.out.println("Saving your data...");
+        System.out.println(ConsoleColors.colorize("Saving your data...", ConsoleColors.YELLOW));
         try {
             saveAllData(account);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Exited the bank.");
-        System.out.println("Hope you had a satisfactory experience!");
+        System.out.println(ConsoleColors.colorize("Exited the bank.", ConsoleColors.GREEN));
+        System.out.println(ConsoleColors.colorize("Hope you had a satisfactory experience!",
+                ConsoleColors.BLACK_BACKGROUND_BRIGHT));
 
         return choice;
     }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Welcome to California Bank!");
+        System.out.println(ConsoleColors.colorize("Welcome to California Bank!", ConsoleColors.BLUE_BOLD_BRIGHT));
         System.out.println("1. Create account");
         System.out.println("2. Login");
         System.out.print("Enter your choice: ");
@@ -523,7 +546,7 @@ public class BankAccount {
                 BankAccount account = BankAccount.createAccount();
                 getChoice(account);
             } catch (Exception e) {
-                System.out.println("An error occurred.");
+                System.out.println(ConsoleColors.colorize("An error occurred.", ConsoleColors.RED));
                 e.printStackTrace();
             }
 
@@ -532,11 +555,11 @@ public class BankAccount {
                 BankAccount account = BankAccount.login();
                 getChoice(account);
             } catch (Exception e) {
-                System.out.println("An error occurred.");
+                System.out.println(ConsoleColors.colorize("An error occurred.", ConsoleColors.RED));
                 e.printStackTrace();
             }
         } else {
-            System.out.println("Invalid choice.");
+            System.out.println(ConsoleColors.colorize("Invalid choice.", ConsoleColors.RED));
         }
     }
 }
